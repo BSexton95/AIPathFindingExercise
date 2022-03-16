@@ -45,6 +45,21 @@ void sortFScore(DynamicArray<NodeGraph::Node*>& nodes)
 DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 {
 	//Insert algorithm here
+<<<<<<< ae26f537f98cf3d803424e409185c301585dbb3a
+=======
+	return DynamicArray<NodeGraph::Node*>();
+
+	Node* currentNode = new Node();
+	currentNode = start;
+
+	Node* goalNode = new Node();
+	goalNode = goal;
+
+	while (currentNode->edges.getLength())
+	{
+		
+	}
+>>>>>>> Worked on find path function
 }
 
 void NodeGraph::drawGraph(Node* start)
