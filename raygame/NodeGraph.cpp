@@ -53,6 +53,15 @@ DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 	Node* goalNode = new Node();
 	goalNode = goal;
 
+	for (int i = 0; i < currentNode->edges.getLength(); i++)
+	{
+		if (currentNode == goal)
+			return DynamicArray<NodeGraph::Node*>(currentNode);
+		else
+		{
+			
+		}
+	}
 	while (currentNode->edges.getLength())
 	{
 		
