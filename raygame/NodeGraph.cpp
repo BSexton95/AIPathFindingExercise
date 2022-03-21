@@ -44,27 +44,72 @@ void sortFScore(DynamicArray<NodeGraph::Node*>& nodes)
 
 DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 {
+	resetGraphScore(start);
+
 	//Insert algorithm here
 	if (!start)
 		return DynamicArray<NodeGraph::Node*>();
 	
 	DynamicArray<NodeGraph::Node*> openList;
 	DynamicArray<NodeGraph::Node*> closedList;
-	Node* currentNode = start;
+	Node* currentNode;
 	
 	openList.addItem(start);
 
-	while (openList.getLength())
+	start->color = 0x00FF00FF; //red 0xFF0000FF
+
+	while (openList.getLength() > 0)
 	{
-		if (start->gScore > currentNode->gScore)
+		DynamicArray<NodeGraph::Node*> nodes;
+		NodeGraph::Node* key = nullptr;
+		int j = 0;
+
+		//Sorting all items by their gScore
+		for (int i = 0; i < nodes.getLength(); i++)
 		{
-			start = currentNode;
-			closedList.addItem(currentNode);
-			openList.remove(currentNode);
+			key = nodes[i];
+			j = i - 1;
+
+			while (j >= 0 && nodes[j]->gScore > key->gScore)
+			{
+				nodes[j + 1] = nodes[j];
+				j--;
+			}
+
+			nodes[j + 1] = key;
 		}
-		else
+
+		currentNode = start;
+
+		if (currentNode == goal)
 		{
 			return reconstructPath(currentNode, goal);
+		}
+		
+		openList.remove(currentNode);
+		closedList.addItem(currentNode);
+		
+
+		for (int i = 0; i < currentNode->edges.getLength(); i++)
+		{
+			if (closedList.contains(currentNode->previous))
+			{
+				currentNode++;
+			}
+			else
+			{
+				currentNode->previous->gScore = currentNode->edges[i].cost + currentNode->previous->edges[i].cost;
+			}
+
+			if (openList.contains(currentNode->previous))
+			{
+				currentNode->previous->gScore = currentNode->gScore;
+				currentNode = currentNode->previous;
+			}
+			else if (currentNode->previous->gScore < currentNode->gScore)
+			{
+				currentNode->previous->gScore = currentNode->gScore;
+			}
 		}
 	}
 
