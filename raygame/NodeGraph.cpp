@@ -60,23 +60,23 @@ DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 
 	while (openList.getLength() > 0)
 	{
-		DynamicArray<NodeGraph::Node*> nodes;
+		//DynamicArray<NodeGraph::Node*> nodes;
 		NodeGraph::Node* key = nullptr;
 		int j = 0;
 
 		//Sorting all items by their gScore
-		for (int i = 0; i < nodes.getLength(); i++)
+		for (int i = 0; i < openList.getLength(); i++)
 		{
-			key = nodes[i];
+			key = openList[i];
 			j = i - 1;
 
-			while (j >= 0 && nodes[j]->gScore > key->gScore)
+			while (j >= 0 && openList[j]->gScore > key->gScore)
 			{
-				nodes[j + 1] = nodes[j];
+				openList[j + 1] = openList[j];
 				j--;
 			}
 
-			nodes[j + 1] = key;
+			openList[j + 1] = key;
 		}
 
 		currentNode = start;
@@ -92,28 +92,40 @@ DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 
 		for (int i = 0; i < currentNode->edges.getLength(); i++)
 		{
-			if (closedList.contains(currentNode->previous))
+			if (currentNode->edges[i].target)
 			{
-				currentNode++;
+				currentNode->edges[i].target->gScore = currentNode->gScore + currentNode->edges[i].cost;
 			}
 			else
 			{
-				currentNode->previous->gScore = currentNode->edges[i].cost + currentNode->previous->edges[i].cost;
+				if (openList.contains(currentNode))
+				{
+					currentNode->edges[i].target->gScore = currentNode->gScore;
+					currentNode->previous = currentNode;
+				}
+			}
+			/*if (!closedList.contains(currentNode->edges[i].target))
+			{
+				currentNode->edges[i].target->gScore = currentNode->gScore + currentNode->edges[i].cost;
+			}
+			else if (!openList.contains(currentNode->edges[i].target))
+			{
+				currentNode->edges[i].target->gScore = currentNode->gScore;
+				currentNode->previous = currentNode;
 			}
 
-			if (openList.contains(currentNode->previous))
+			if (currentNode->edges[i].target->gScore > currentNode->gScore)
 			{
-				currentNode->previous->gScore = currentNode->gScore;
-				currentNode = currentNode->previous;
-			}
-			else if (currentNode->previous->gScore < currentNode->gScore)
-			{
-				currentNode->previous->gScore = currentNode->gScore;
-			}
+				currentNode->edges[i].target->gScore = currentNode->gScore;
+				currentNode->previous = currentNode;
+			}*/
 		}
+
+		return reconstructPath(currentNode, goal);
 	}
 
-	return reconstructPath(start, goal);
+	
+	
 }
 
 void NodeGraph::drawGraph(Node* start)
