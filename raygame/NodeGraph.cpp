@@ -42,6 +42,28 @@ void sortFScore(DynamicArray<NodeGraph::Node*>& nodes)
 	}
 }
 
+
+
+void NodeGraph::sortGScore(DynamicArray<NodeGraph::Node*>& nodes)
+{
+	NodeGraph::Node* key = nullptr;
+	int j = 0;
+
+	for (int i = 1; i < nodes.getLength(); i++)
+	{
+		key = nodes[i];
+		j = i - 1;
+
+		while (j >= 0 && nodes[j]->gScore > key->gScore)
+		{
+			nodes[j + 1] = nodes[j];
+			j--;
+		}
+
+		nodes[j + 1] = key;
+	}
+}
+
 DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 {
 	resetGraphScore(start);
@@ -52,7 +74,7 @@ DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 	
 	DynamicArray<NodeGraph::Node*> openList;
 	DynamicArray<NodeGraph::Node*> closedList;
-	Node* currentNode;
+	Node* currentNode = start;
 	
 	openList.addItem(start);
 
@@ -60,71 +82,40 @@ DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 
 	while (openList.getLength() > 0)
 	{
-		//DynamicArray<NodeGraph::Node*> nodes;
-		NodeGraph::Node* key = nullptr;
-		int j = 0;
-
-		//Sorting all items by their gScore
-		for (int i = 0; i < openList.getLength(); i++)
-		{
-			key = openList[i];
-			j = i - 1;
-
-			while (j >= 0 && openList[j]->gScore > key->gScore)
-			{
-				openList[j + 1] = openList[j];
-				j--;
-			}
-
-			openList[j + 1] = key;
-		}
-
-		currentNode = start;
-
 		if (currentNode == goal)
 		{
 			return reconstructPath(currentNode, goal);
 		}
 		
+		sortGScore(openList);
+		currentNode = openList[0];
 		openList.remove(currentNode);
 		closedList.addItem(currentNode);
-		
 
 		for (int i = 0; i < currentNode->edges.getLength(); i++)
 		{
-			if (currentNode->edges[i].target)
+			if (!closedList.contains(currentNode->edges[i].target))
 			{
 				currentNode->edges[i].target->gScore = currentNode->gScore + currentNode->edges[i].cost;
+			}
+
+			if (!openList.contains(currentNode->edges[i].target))
+			{
+				currentNode->edges[i].target->gScore = currentNode->gScore + currentNode->edges[i].cost;
+				currentNode->edges[i].target->previous = currentNode;
 			}
 			else
 			{
-				if (openList.contains(currentNode))
+				if (currentNode->edges[i].target->gScore < currentNode->gScore)
 				{
-					currentNode->edges[i].target->gScore = currentNode->gScore;
-					currentNode->previous = currentNode;
+					currentNode->edges[i].target->gScore = currentNode->gScore + currentNode->edges[i].cost;
+					currentNode->edges[i].target->previous = currentNode;
 				}
 			}
-			/*if (!closedList.contains(currentNode->edges[i].target))
-			{
-				currentNode->edges[i].target->gScore = currentNode->gScore + currentNode->edges[i].cost;
-			}
-			else if (!openList.contains(currentNode->edges[i].target))
-			{
-				currentNode->edges[i].target->gScore = currentNode->gScore;
-				currentNode->previous = currentNode;
-			}
-
-			if (currentNode->edges[i].target->gScore > currentNode->gScore)
-			{
-				currentNode->edges[i].target->gScore = currentNode->gScore;
-				currentNode->previous = currentNode;
-			}*/
 		}
-
-		return reconstructPath(currentNode, goal);
 	}
 
-	
+	return reconstructPath(currentNode, goal);
 	
 }
 
