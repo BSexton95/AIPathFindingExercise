@@ -87,12 +87,40 @@ DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 			return reconstructPath(currentNode, goal);
 		}
 		
+		//Sort the open list to lowest gScore to higher gScore
 		sortGScore(openList);
+		//Set the current node to be the first node in the open list
 		currentNode = openList[0];
+		//remove the current node from the open list
 		openList.remove(currentNode);
+		//Add the current node to the closed list
 		closedList.addItem(currentNode);
 
-		for (int i = 0; i < currentNode->edges.getLength(); i++)
+		if (!closedList.contains(currentNode))
+		{
+			for (int i = 0; i < currentNode->edges.getLength(); i++)
+			{
+				currentNode->gScore = currentNode->gScore + currentNode->edges[i].cost;
+				currentNode->previous = currentNode;
+
+				if (!openList.contains(currentNode))
+				{
+					currentNode->gScore = currentNode->gScore + currentNode->edges[i].cost;
+					currentNode->previous = currentNode;
+				}
+				else
+				{
+					if (currentNode->gScore < currentNode->previous->gScore)
+					{
+						currentNode->gScore = currentNode->gScore + currentNode->edges[i].cost;
+						currentNode->previous = currentNode;
+					}
+					
+				}
+			}
+		}
+
+		/*for (int i = 0; i < currentNode->edges.getLength(); i++)
 		{
 			if (!closedList.contains(currentNode->edges[i].target))
 			{
@@ -112,7 +140,7 @@ DynamicArray<NodeGraph::Node*> NodeGraph::findPath(Node* start, Node* goal)
 					currentNode->edges[i].target->previous = currentNode;
 				}
 			}
-		}
+		}*/
 	}
 
 	return reconstructPath(currentNode, goal);
